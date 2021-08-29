@@ -14,16 +14,45 @@ export function TaskList() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [newTaskTitle, setNewTaskTitle] = useState('');
 
-  function handleCreateNewTask() {
-    // Crie uma nova task com um id random, não permita criar caso o título seja vazio.
+  function validateTaskTitle():boolean{
+    return validateTaskTitleDuplicate() && validateTaskTitleHaveValue();
   }
 
-  function handleToggleTaskCompletion(id: number) {
-    // Altere entre `true` ou `false` o campo `isComplete` de uma task com dado ID
+  function validateTaskTitleDuplicate():boolean{
+    let isValid = true;
+    if(tasks.find(t => t.title === newTaskTitle)){
+      isValid = false;
+      alert("Tarefa já está cadastrada.");
+    }
+    return isValid;
   }
 
-  function handleRemoveTask(id: number) {
-    // Remova uma task da listagem pelo ID
+  function validateTaskTitleHaveValue():boolean{
+    let isValid = true;
+    if(!newTaskTitle){
+      isValid = false;
+      alert("Necessário informar um título para a tarefa.");
+    }
+    return isValid;
+  }
+
+  function handleCreateNewTask():void {
+    const lastId = tasks.length ? tasks[tasks.length-1].id : 0;
+    const task = {title: newTaskTitle, id: lastId + 1, isComplete: false } as Task;
+    if(validateTaskTitle())
+      setTasks([...tasks, task]);
+  }
+
+  function handleToggleTaskCompletion(id: number):void {
+    const task = tasks.find(t => t.id === id);
+    if(task){
+      task.isComplete = !task.isComplete;
+      setTasks([...tasks.filter(t => t.id !== id), task]);
+    }
+  }
+
+  function handleRemoveTask(id: number):void {
+    setTasks([...tasks.filter(t => t.id !== id)]);
   }
 
   return (
